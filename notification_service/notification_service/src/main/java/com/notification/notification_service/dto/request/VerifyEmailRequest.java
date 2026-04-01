@@ -1,0 +1,15 @@
+package com.notification.notification_service.dto.request;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class VerifyEmailRequest {
+    String userEmail;
+    String userName;
+    String token;
+}

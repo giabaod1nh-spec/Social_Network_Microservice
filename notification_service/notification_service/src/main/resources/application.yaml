@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: notification_service
+  data:
+    mongodb:
+      uri: mongodb://root:root@localhost:27017/notification-service?authSource=admin
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: noreplybookingxhotel@gmail.com
+    password: Dinhbaodeptrai123.
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  sendgrid:
+    api-key: nigga-api-key
+    from-email: noreplybookingxhotel@gmail.com
+
+app:
+  verification-link-base: http://localhost:8888/api/v1/identity
+
+server:
+  port: 8082
+  servlet:
+    context-path: /notification
+
+
