@@ -6,6 +6,7 @@ import com.profile_service.profile.exception.AppException;
 import com.profile_service.profile.exception.ErrorCode;
 import com.profile_service.profile.mapper.UserProfileMapper;
 import com.profile_service.profile.repository.FollowRepository;
+import com.profile_service.profile.repository.UserProfileRepository;
 import com.profile_service.profile.service.IFollowService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,15 @@ import java.util.List;
 public class FollowService implements IFollowService {
     FollowRepository followRepository;
     UserProfileMapper userProfileMapper;
+    UserProfileRepository userProfileRepository;
 
     @Override
     public void follow(String currentUserId, String targetUserId) {
+
+        if(currentUserId.equals(targetUserId)){
+            throw new AppException(ErrorCode.CANT_FOLLOW_YOURSELF);
+        }
+
        if(followRepository.isFollowing(currentUserId , targetUserId)){
            throw new AppException(ErrorCode.ALREADY_FOLLOWED);
        }
@@ -46,14 +53,14 @@ public class FollowService implements IFollowService {
 
     @Override
     public List<UserProfileResponse> userThatFollowedYou(String userId) {
-        List<UserProfile> userProfiles = followRepository.findFollowersByUserId(userId);
+        List<UserProfile> userProfiles = userProfileRepository.findFollowersByUserId(userId);
 
         return userProfiles.stream().map(userProfileMapper::convertResponseFromUserProfile).toList();
     }
 
     @Override
     public List<UserProfileResponse> userThatYouFollowing(String userId) {
-        List<UserProfile> userProfiles = followRepository.findFollowingByUserId(userId);
+        List<UserProfile> userProfiles = userProfileRepository.findFollowingByUserId(userId);
 
         return userProfiles.stream().map(userProfileMapper::convertResponseFromUserProfile).toList();
     }

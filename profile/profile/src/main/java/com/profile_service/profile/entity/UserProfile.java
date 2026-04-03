@@ -25,15 +25,21 @@ public class UserProfile {
     @Property("userId")
     String userId;
 
+    @Property("firstName")
     String firstName;
 
+    @Property("lastName")
     String lastName;
 
+    @Property("gender")
     String gender;
 
+    @Property("dob")
     LocalDate dob;
 
+    @Property("address")
     String address;
 
+    @Property("phone")
     String phone;
 }

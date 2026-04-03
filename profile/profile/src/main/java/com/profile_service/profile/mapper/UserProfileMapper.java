@@ -20,6 +20,7 @@ public class UserProfileMapper {
     }
 
     public UserProfileResponse convertResponseFromUserProfile(UserProfile userProfile) {
+        System.out.println("DEBUG: Entity từ DB -> " + userProfile.getUserId() + " | " + userProfile.getFirstName());
         return UserProfileResponse.builder()
                 .userId(userProfile.getUserId())
                 .firstName(userProfile.getFirstName())
