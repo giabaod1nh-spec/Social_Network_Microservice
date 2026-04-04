@@ -9,7 +9,8 @@ public enum ErrorCode {
     ALREADY_FOLLOWED(3003 , "You already followed this user" , HttpStatus.FOUND),
     ERROR_WHEN_FOLLOW(3004 , "Some error happened when tryin follow" , HttpStatus.BAD_REQUEST),
     NOT_FOLLOWED(3003 , "You not followed this user" , HttpStatus.FOUND),
-    CANT_FOLLOW_YOURSELF(3004 , "Cant be followed yourself", HttpStatus.FOUND)
+    CANT_FOLLOW_YOURSELF(3004 , "Cant be followed yourself", HttpStatus.FOUND),
+    ONLY_ONE_FILE_ALLOWED(3005 , "Upload 1 image as avatar" , HttpStatus.BAD_REQUEST)
 
     ;
 

@@ -11,3 +11,11 @@ server:
   port: 8081
   servlet:
     context-path: /profile
+
+cloudflare:
+  r2:
+    account-id: b20f665521d7494d518f301821cfceb8
+    access-key: 84bfde63d1eaf0278cb6c28e0a4f4fab
+    bucket-name: post
+    secret-key: a1c1ea67c4b37b1b777438d2d2a542b343c5b88077d20fdb5a810c7347ff5e61
+    public-url: https://b20f665521d7494d518f301821cfceb8.r2.cloudflarestorage.com

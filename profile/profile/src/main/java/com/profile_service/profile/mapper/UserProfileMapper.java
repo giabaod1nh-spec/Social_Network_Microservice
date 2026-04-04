@@ -28,7 +28,8 @@ public class UserProfileMapper {
                 .gender(userProfile.getGender())
                 .dob(userProfile.getDob())
                 .address(userProfile.getAddress())
-                //.phone(userProfile.getPhone())
+                .phone(userProfile.getPhone())
+                .avatar(userProfile.getAvatar())
                 .build();
     }
 }

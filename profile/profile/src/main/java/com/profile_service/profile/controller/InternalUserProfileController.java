@@ -7,7 +7,11 @@ import com.profile_service.profile.service.impl.UserProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.awt.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,12 +19,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/info")
 public class InternalUserProfileController {
     UserProfileService userProfileService;
-    @PostMapping("/internal/create")
-    ApiResponse<UserProfileResponse> createProfile(@RequestBody ProfileCreationRequest request){
+    @PostMapping(value = "/internal/create")
+    ApiResponse<UserProfileResponse> createProfile(@RequestBody ProfileCreationRequest request ){
 
         return ApiResponse.<UserProfileResponse>builder()
                 .message("Create profile success ")
-                .result(userProfileService.createProfile(request))
+                .result(userProfileService.createProfile(request ))
                 .build();
     }
 

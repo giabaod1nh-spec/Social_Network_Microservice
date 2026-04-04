@@ -4,6 +4,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://root:root@localhost:27017/chat-service?authSource=admin
+      auto-index-creation: true
 
 server:
   port: 8085
