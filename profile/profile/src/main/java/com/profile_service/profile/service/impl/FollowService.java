@@ -64,4 +64,5 @@ public class FollowService implements IFollowService {
 
         return userProfiles.stream().map(userProfileMapper::convertResponseFromUserProfile).toList();
     }
+
 }

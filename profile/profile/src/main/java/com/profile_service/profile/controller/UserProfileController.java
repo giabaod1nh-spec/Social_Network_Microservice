@@ -2,6 +2,7 @@ package com.profile_service.profile.controller;
 
 import com.profile_service.profile.dto.request.ProfileUpdateRequest;
 import com.profile_service.profile.dto.response.ApiResponse;
+import com.profile_service.profile.dto.response.ProfileFullInfoResponse;
 import com.profile_service.profile.dto.response.UserProfileResponse;
 import com.profile_service.profile.service.impl.UserProfileService;
 import lombok.AccessLevel;
@@ -9,8 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.neo4j.cypherdsl.core.Use;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,12 +23,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserProfileController {
     UserProfileService userProfileService;
 
-    @GetMapping("/getProfile/{id}")
-    ApiResponse<UserProfileResponse> getProfileById(@PathVariable String id){
+    @GetMapping("/getProfile")
+    ApiResponse<ProfileFullInfoResponse> getProfileById(){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        return ApiResponse.<UserProfileResponse>builder()
+        return ApiResponse.<ProfileFullInfoResponse>builder()
                 .message("Get profile user")
-                .result(userProfileService.getUserProfile(id))
+                .result(userProfileService.getUserProfile(userId))
                 .build();
     }
 
@@ -47,5 +52,13 @@ public class UserProfileController {
                 .build();
     }
 
+    @GetMapping("/search/{userName}")
+    ApiResponse<List<UserProfileResponse>> getUserSearchByUserName(@PathVariable String userName){
+        return  ApiResponse.<List<UserProfileResponse>>
+                builder()
+                .message("User searched")
+                .result(userProfileService.searchUserByUserName(userName))
+                .build();
+    }
 
 }

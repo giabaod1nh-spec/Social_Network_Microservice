@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 public class UserProfileMapper {
     public ProfileCreationRequest  convertFromUserCreationRequest(UserCreationRequest request){
         return ProfileCreationRequest.builder()
+                .userName(request.getUserName())
+                .avatar(request.getAvatar())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .gender(request.getGender())

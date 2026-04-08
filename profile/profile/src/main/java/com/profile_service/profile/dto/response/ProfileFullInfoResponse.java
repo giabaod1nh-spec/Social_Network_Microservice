@@ -6,11 +6,11 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class UserProfileResponse {
+public class ProfileFullInfoResponse {
     String userId;
 
     String userName;
@@ -29,4 +29,7 @@ public class UserProfileResponse {
 
     String phone;
 
+    Long follower;
+
+    Long followed;
 }

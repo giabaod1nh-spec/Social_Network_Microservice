@@ -3,11 +3,13 @@ package com.profile_service.profile.service.impl;
 import com.profile_service.profile.configuration.R2Config;
 import com.profile_service.profile.dto.request.ProfileCreationRequest;
 import com.profile_service.profile.dto.request.ProfileUpdateRequest;
+import com.profile_service.profile.dto.response.ProfileFullInfoResponse;
 import com.profile_service.profile.dto.response.UserProfileResponse;
 import com.profile_service.profile.entity.UserProfile;
 import com.profile_service.profile.exception.AppException;
 import com.profile_service.profile.exception.ErrorCode;
 import com.profile_service.profile.mapper.UserProfileMapper;
+import com.profile_service.profile.repository.FollowRepository;
 import com.profile_service.profile.repository.UserProfileRepository;
 import com.profile_service.profile.service.IUserProfileService;
 import lombok.AccessLevel;
@@ -22,6 +24,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,6 +36,7 @@ public class UserProfileService  implements IUserProfileService {
     UserProfileMapper userProfileMapper;
     UserProfileRepository userProfileRepository;
     R2Config r2Config;
+    FollowRepository followRepository;
     @Override
     public UserProfileResponse createProfile(ProfileCreationRequest request) {
 
@@ -64,17 +68,27 @@ public class UserProfileService  implements IUserProfileService {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 
-        if(files.isEmpty() || (files.getSize() != 1){
-                throw new AppException(ErrorCode.ONLY_ONE_FILE_ALLOWED);
-        }
         userProfile.setAvatar(uploadMediaToS3(userId , files));
         return userProfileMapper.convertResponseFromUserProfile(userProfileRepository.save(userProfile));
     }
 
     @Override
-    public UserProfileResponse getUserProfile(String id) {
-        UserProfile userProfile = userProfileRepository.findById(id).orElseThrow(() -> new RuntimeException());
-        return  userProfileMapper.convertResponseFromUserProfile(userProfile) ;
+    public ProfileFullInfoResponse getUserProfile(String id) {
+
+        UserProfile userProfile = userProfileRepository.findByUserId(id).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+         return  ProfileFullInfoResponse.builder()
+                .userId(userProfile.getUserId())
+                .userName(userProfile.getUserName())
+                .avatar(userProfile.getAvatar())
+                .firstName(userProfile.getFirstName())
+                .lastName(userProfile.getLastName())
+                .gender(userProfile.getGender())
+                .dob(userProfile.getDob())
+                .address(userProfile.getAddress())
+                .phone(userProfile.getPhone())
+                .follower(followRepository.countFollowers(id))
+                .followed(followRepository.countFollowing(id))
+                .build();
     }
 
     @Override
@@ -83,6 +97,13 @@ public class UserProfileService  implements IUserProfileService {
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 
         return userProfileMapper.convertResponseFromUserProfile(userProfile);
+    }
+
+    @Override
+    public List<UserProfileResponse> searchUserByUserName(String keyword) {
+        List<UserProfile> lists = userProfileRepository.findUserByUserName(keyword);
+
+        return lists.stream().map(userProfileMapper::convertResponseFromUserProfile).toList();
     }
 
 

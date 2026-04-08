@@ -15,6 +15,8 @@ public class UserProfileResponse {
 
     String userName;
 
+    String avatar;
+
     String firstName;
 
     String lastName;

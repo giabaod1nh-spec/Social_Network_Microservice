@@ -31,4 +31,16 @@ public interface FollowRepository extends Neo4jRepository<FollowRelationship , L
             """)
     boolean isFollowing(String followerUserId, String targetUserId);
 
+    @Query("""
+        MATCH (f:user_profile)-[r:FOLLOW]->(t:user_profile {userId: $userId})
+        RETURN COUNT(r)
+        """)
+    long countFollowers(String userId);
+
+    @Query("""
+        MATCH (f:user_profile {userId: $userId})-[r:FOLLOW]->(t:user_profile)
+        RETURN COUNT(r)
+        """)
+    long countFollowing(String userId);
+
 }

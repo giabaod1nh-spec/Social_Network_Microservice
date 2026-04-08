@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "identity-client", url = "${app.services.identity.url}")
+@FeignClient(name = "identity-client", url = "${app.service.identity}")
 public interface IdentityClient {
     @PostMapping("/auth/introspect")
     ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request);

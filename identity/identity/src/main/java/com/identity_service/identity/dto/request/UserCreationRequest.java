@@ -14,6 +14,8 @@ import java.time.LocalDate;
 public class UserCreationRequest {
     String userName;
 
+    String avatar;
+
     String password;
 
     String email;

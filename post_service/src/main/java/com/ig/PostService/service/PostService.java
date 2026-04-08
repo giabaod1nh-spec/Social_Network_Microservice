@@ -201,11 +201,6 @@ public class PostService {
         }
     }
 
-   // public List<PostResponse> getPost(String userId){
-//
-   //}
-
-
     private String uploadMediaToS3(String userId, MultipartFile media)  {
         UUID uuid = UUID.randomUUID();
         String fileName = uuid.toString() + media.getName();

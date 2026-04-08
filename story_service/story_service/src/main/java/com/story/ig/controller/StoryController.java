@@ -13,8 +13,8 @@ public class StoryController {
     @Autowired
     StoryService storyService;
 
-    @PostMapping("/post-story/{user-id}")
-    public ResponseEntity<?> postStory(@PathVariable("user-id") String userId, @RequestParam("media") MultipartFile media,
+    @PostMapping("/post-story")
+    public ResponseEntity<?> postStory( String userId, @RequestParam("media") MultipartFile media,
                                        @RequestParam(value = "description", required = false) String description){
         UserStoriesDTO response = storyService.PostStory(userId, media, description);
         if(response == null){

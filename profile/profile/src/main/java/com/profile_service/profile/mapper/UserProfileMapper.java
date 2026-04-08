@@ -10,6 +10,8 @@ public class UserProfileMapper {
     public UserProfile convertUserProfileFromRequest(ProfileCreationRequest request){
         return UserProfile.builder()
                 .userId(request.getUserId())
+                .userName(request.getUserName())
+                .avatar(request.getAvatar())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .gender(request.getGender())
@@ -23,6 +25,8 @@ public class UserProfileMapper {
         System.out.println("DEBUG: Entity từ DB -> " + userProfile.getUserId() + " | " + userProfile.getFirstName());
         return UserProfileResponse.builder()
                 .userId(userProfile.getUserId())
+                .userName(userProfile.getUserName())
+                .avatar(userProfile.getAvatar())
                 .firstName(userProfile.getFirstName())
                 .lastName(userProfile.getLastName())
                 .gender(userProfile.getGender())

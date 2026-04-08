@@ -10,6 +10,7 @@ public class ConversationMapper {
     public ConversationResponse convertConversationToResponse(Conversation conversation){
 
         return  ConversationResponse.builder()
+                .id(conversation.getId())
                 .type(conversation.getType())
                 .participantsHash(conversation.getParticipantHash())
                 .participants(conversation.getParticipants())

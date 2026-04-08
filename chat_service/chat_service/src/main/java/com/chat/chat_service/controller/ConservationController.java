@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE , makeFinal = true)
 @RequestMapping("/conversation")
 public class ConservationController {
     ConversationService conversationService;

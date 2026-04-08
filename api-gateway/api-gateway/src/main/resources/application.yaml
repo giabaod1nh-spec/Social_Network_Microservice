@@ -19,6 +19,18 @@ spring:
             - Path=${app.api-prefix}/profile/info/** ,
           filters:
             - StripPrefix=2
+        - id: story
+          uri: http://localhost:8083
+          predicates:
+            - Path=${app.api-prefix}/story/**
+          filters:
+            - StripPrefix=2
+        - id: post
+          uri: http://localhost:8084
+          predicates:
+            - Path=${app.api-prefix}/post/**
+          filters:
+            - StripPrefix=2
 
 server:
   port: 8888

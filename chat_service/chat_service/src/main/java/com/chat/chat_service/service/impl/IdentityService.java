@@ -18,7 +18,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class IdentityService {
-    IdentityClient identityClient;
+    final IdentityClient identityClient;
 
     public IntrospectResponse introspect(IntrospectRequest request) {
         try {

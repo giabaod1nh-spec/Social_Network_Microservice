@@ -1,6 +1,7 @@
 package com.profile_service.profile.repository;
 
 import com.profile_service.profile.entity.UserProfile;
+import org.apache.catalina.User;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
@@ -25,4 +26,12 @@ RETURN t
 """)
     List<UserProfile> findFollowingByUserId(String userId);
 
+
+    @Query("""
+            MATCH (u:user_profile)
+            WHERE u.userName CONTAINS $keyword
+            RETURN u
+            LIMIT 20
+            """)
+    List<UserProfile> findUserByUserName(String keyword);
 }

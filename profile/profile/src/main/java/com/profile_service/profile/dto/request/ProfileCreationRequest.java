@@ -14,6 +14,8 @@ import java.time.LocalDate;
 public class ProfileCreationRequest {
     String userId;
 
+    String userName;
+
     String avatar;
 
     String firstName;

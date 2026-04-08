@@ -1,6 +1,7 @@
 package com.chat.chat_service.service.impl;
 
 import com.chat.chat_service.dto.request.ChatMessageRequest;
+import com.chat.chat_service.dto.request.NotificationMobileRequest;
 import com.chat.chat_service.dto.response.ChatMessageResponse;
 import com.chat.chat_service.entity.ChatMessage;
 import com.chat.chat_service.entity.ParticipantInfo;
@@ -9,12 +10,10 @@ import com.chat.chat_service.exception.ErrorCode;
 import com.chat.chat_service.mapper.ChatMapper;
 import com.chat.chat_service.repository.ConservationRepository;
 import com.chat.chat_service.repository.ChatMessageRepository;
+import com.chat.chat_service.repository.httpclient.NotificationClient;
 import com.chat.chat_service.repository.httpclient.ProfileClient;
 import com.chat.chat_service.service.IChatService;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,8 +26,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Slf4j
 public class ChatService  implements IChatService {
-    private  final ConservationRepository conversationRepository;
-    ProfileClient profileClient;
+    private final ConservationRepository conversationRepository;
+    private final ProfileClient profileClient;
+    private final NotificationClient notificationClient;
     private final ChatMapper chatMessageMapper;
     private final ChatMessageRepository chatMessageRepository;
 
@@ -41,6 +41,14 @@ public class ChatService  implements IChatService {
                 .getParticipants()
                 .stream()
                 .filter(participantInfo -> userId.equals(participantInfo.getUserId()))
+                .findAny()
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
+        //Find receiver
+        ParticipantInfo receiver = conversationRepository.findById(request.getConversationId())
+                .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND))
+                .getParticipants()
+                .stream()
+                .filter(participantInfo -> !userId.equals(participantInfo.getUserId()))
                 .findAny()
                 .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
 
@@ -58,12 +66,20 @@ public class ChatService  implements IChatService {
                 .userName(userInfo.getUserName())
                 //.firstName(userInfo.getFirstName())
                 //.lastName(userInfo.getLastName())
-               // .avatar(userInfo.getAvatar())
+                .avatar(userInfo.getAvatar())
                 .build());
         chatMessage.setCreatedDate(Instant.now());
 
         // Create chat message
         chatMessage = chatMessageRepository.save(chatMessage);
+
+        //Call push notification
+        NotificationMobileRequest req = NotificationMobileRequest.builder()
+                .userId(receiver.getUserId())
+                .tittle("You have received a new massage from: " + userInfo.getUserName())
+                .body(chatMessage.getMessage())
+                .build();
+        notificationClient.sendMobileNotification(req);
 
         // convert to Response
         return toChatMessageResponse(chatMessage);
@@ -71,7 +87,8 @@ public class ChatService  implements IChatService {
     private ChatMessageResponse toChatMessageResponse(ChatMessage chatMessage) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         var chatMessageResponse = chatMessageMapper.convertFromChatMessage(chatMessage);
-
+        //log.info("UserId: {} ", userId);
+       // log.info("UserId cua thang message: {} ", chatMessage.getSender().getUserId());
         chatMessageResponse.setMe(userId.equals(chatMessage.getSender().getUserId()));
 
         return chatMessageResponse;
@@ -91,6 +108,6 @@ public class ChatService  implements IChatService {
 
         var messages = chatMessageRepository.findAllByConversationIdOrderByCreatedDateDesc(conversationId);
 
-        return messages.stream().map(chatMessageMapper::convertFromChatMessage).toList();
+        return messages.stream().map(this::toChatMessageResponse).toList();
     }
 }
