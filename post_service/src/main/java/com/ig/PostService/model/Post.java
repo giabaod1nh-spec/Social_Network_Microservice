@@ -18,20 +18,22 @@ import java.util.List;
 public class Post {
     @Id
     private String id;
-
     @Column(name = "user_id")
     private String userId;
-
+    @Column(name = "first_name")
+    private String firstName;
+    @Column(name ="avatar_url")
+    private String avatarUrl;
+    @Column(name = "last_name")
+    private String lastName;
+    @Column(name = "user_name")
+    private String userName;
     private String description;
-
     private Long liked;
-
     @Column(name = "create_at")
     private LocalDateTime createAt;
-
     @Column(name = "url_media")
     private String urlMedia;
-
-    @OneToMany(mappedBy = "post" , cascade =  CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post")
     private List<Comment> commentList;
 }

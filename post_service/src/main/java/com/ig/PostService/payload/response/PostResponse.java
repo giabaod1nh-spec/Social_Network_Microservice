@@ -15,7 +15,12 @@ import java.util.List;
 @Setter
 public class PostResponse {
     private String id;
-    private String userId;
+    private String code = "200";
+    private Boolean likedByUser = false;
+    private String userName;
+    private String lastName;
+    private String firstName;
+    private String avatarUrl;
     private String description;
     private Long liked;
     private LocalDateTime createAt;

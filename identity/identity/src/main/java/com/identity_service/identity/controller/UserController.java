@@ -4,6 +4,9 @@ import com.identity_service.identity.dto.request.UserCreationRequest;
 import com.identity_service.identity.dto.response.ApiResponse;
 import com.identity_service.identity.dto.response.UserResponse;
 import com.identity_service.identity.service.IUserService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,7 +20,7 @@ public class UserController {
     IUserService userService;
 
     @PostMapping("/create")
-    public ApiResponse<UserResponse> createUser(@RequestBody UserCreationRequest request){
+    public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request){
         return ApiResponse.<UserResponse>builder()
                 .message("Create user successful")
                 .result(userService.createUser(request))
@@ -25,7 +28,7 @@ public class UserController {
     }
 
     @GetMapping("/getById")
-    public ApiResponse<UserResponse> getUserById(@RequestParam String userId){
+    public ApiResponse<UserResponse> getUserById(@RequestParam @NotBlank(message = "USERID_NOT_FOUND") String userId){
         return ApiResponse.<UserResponse>builder()
                 .message("Get user by id")
                 .result(userService.getUser(userId))
@@ -33,7 +36,7 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public ApiResponse<Void> deleteUserById(@RequestParam String userId){
+    public ApiResponse<Void> deleteUserById(@RequestParam @NotBlank(message = "USERID_NOT_FOUND") String userId){
         userService.deleteUser(userId);
         return ApiResponse.<Void>builder()
                 .message("Delete user success")

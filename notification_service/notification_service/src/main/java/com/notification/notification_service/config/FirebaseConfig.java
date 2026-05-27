@@ -16,7 +16,7 @@ public class FirebaseConfig {
         try {
 
             FileInputStream serviceAccount =
-                    new FileInputStream("D:\\Social_Network_Microservice-main\\Social_Network_Microservice-main\\notification_service\\notification_service\\src\\main\\resources\\social-insta.json");
+                    new FileInputStream("D:\\Social_Network_Microservice-main\\Social_Network_Microservice-main\\notification_service\\notification_service\\src\\main\\resources\\social-insta-8d82b-firebase-adminsdk-fbsvc-dd7e261bdd.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))

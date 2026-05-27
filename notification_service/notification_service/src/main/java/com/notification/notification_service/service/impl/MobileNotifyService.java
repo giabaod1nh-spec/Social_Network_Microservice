@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,9 +43,17 @@ public class MobileNotifyService implements IMobileNotifyService {
         List<UserDevices> userDevices
                 = userDeviceRepository.findAllByUserId(request.getUserId());
 
-        List<String> tokens = userDevices.stream().map(UserDevices::getDeviceToken)
+        List<String> tokens = userDevices.stream()
+                .map(UserDevices::getDeviceToken)
+                .filter(Objects::nonNull)
+                .filter(token -> !token.isBlank())
                 .distinct()
                 .toList();
+
+        if (tokens.isEmpty()) {
+            System.out.println("No tokens found");
+            return;
+        }
 
         Notification notification = Notification.builder()
                 .setTitle(request.getTittle())
@@ -63,6 +72,31 @@ public class MobileNotifyService implements IMobileNotifyService {
 
         System.out.println("Success: " + response.getSuccessCount());
         System.out.println("Failed: " + response.getFailureCount());
+
+
+        List<SendResponse> responses = response.getResponses();
+
+        for (int i = 0; i < responses.size(); i++) {
+
+            if (!responses.get(i).isSuccessful()) {
+
+                String failedToken = tokens.get(i);
+
+                System.out.println("Failed token: " + failedToken);
+
+                System.out.println(
+                        responses.get(i)
+                                .getException()
+                                .getMessagingErrorCode()
+                );
+
+                System.out.println(
+                        responses.get(i)
+                                .getException()
+                                .getMessage()
+                );
+            }
+        }
     }
 
 }

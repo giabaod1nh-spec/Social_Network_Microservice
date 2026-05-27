@@ -31,6 +31,7 @@ public class SecurityConfig {
                 requestMatchers(HttpMethod.POST , PUBLIC_ENDPOINT)
                 .permitAll()
                 .requestMatchers(HttpMethod.GET , PUBLIC_ENDPOINT).permitAll()
+                .requestMatchers(HttpMethod.DELETE, PUBLIC_ENDPOINT).permitAll()
                 .anyRequest().authenticated()
         );
 

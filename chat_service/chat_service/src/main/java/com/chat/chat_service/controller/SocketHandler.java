@@ -68,7 +68,7 @@ public class SocketHandler {
 
     @PostConstruct
     public void startServer() {
-        server.start();
+                server.start();
         server.addListeners(this);
         log.info("Socket server started");
     }

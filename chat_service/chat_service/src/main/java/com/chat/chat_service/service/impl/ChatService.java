@@ -93,7 +93,6 @@ public class ChatService  implements IChatService {
 
         return chatMessageResponse;
     }
-
     @Override
     public List<ChatMessageResponse> getAllMessages(String conversationId) {
         // Validate conversationId

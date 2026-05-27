@@ -9,6 +9,8 @@ import com.identity_service.identity.dto.response.AuthResponse;
 import com.identity_service.identity.dto.response.IntroSpectResponse;
 import com.identity_service.identity.service.IAuthService;
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,7 +29,7 @@ public class AuthController {
     private final ClientHttpRequestFactorySettings clientHttpRequestFactorySettings;
 
     @PostMapping("/login")
-    public ApiResponse<AuthResponse> authenticated(@RequestBody AuthRequest request){
+    public ApiResponse<AuthResponse> authenticated(@RequestBody @Valid AuthRequest request){
 
         return ApiResponse.<AuthResponse>builder()
                 .message("Authenticated user successfully")
@@ -36,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/introspect")
-    public ApiResponse<IntroSpectResponse> introspectToken(@RequestBody IntroSpectRequest request){
+    public ApiResponse<IntroSpectResponse> introspectToken(@RequestBody @Valid IntroSpectRequest request){
 
         return ApiResponse.<IntroSpectResponse>builder()
                 .message("Introspect token success")
@@ -45,7 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ApiResponse<AuthResponse> refreshTokenAfterTimeOut(@RequestBody RefreshTokenRequest request) throws ParseException, JOSEException {
+    public ApiResponse<AuthResponse> refreshTokenAfterTimeOut(@RequestBody @Valid RefreshTokenRequest request) throws ParseException, JOSEException {
 
         return ApiResponse.<AuthResponse>builder()
                 .message("Refresh token rotation success")
@@ -53,7 +55,7 @@ public class AuthController {
                 .build();
     }
     @PostMapping("/logout")
-    public ApiResponse<Void> logOut(@RequestBody LogOutRequest request) throws ParseException, JOSEException {
+    public ApiResponse<Void> logOut(@RequestBody @Valid LogOutRequest request) throws ParseException, JOSEException {
             authService.logOut(request);
         return ApiResponse.<Void>builder()
                 .message("Log out successfully")

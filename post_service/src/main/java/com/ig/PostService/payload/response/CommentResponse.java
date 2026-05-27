@@ -14,5 +14,9 @@ import java.time.LocalDateTime;
 public class CommentResponse {
     private String userName;
     private String comment;
+    private String firstName;
+    private String lastName;
+    private String avatarUrl;
     private LocalDateTime commentAt;
+    private Long liked;
 }

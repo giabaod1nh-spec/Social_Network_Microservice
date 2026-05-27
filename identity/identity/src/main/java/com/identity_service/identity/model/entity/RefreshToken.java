@@ -18,7 +18,9 @@ public class RefreshToken {
     @Column(nullable = false , unique = true , length = 1000)
     String refreshToken;
 
-        @ManyToOne(fetch = FetchType.EAGER)
-        @JoinColumn(name = "userId" , nullable = false)
-        User users;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "userId" , nullable = false)
+    User users;
+
+
 }

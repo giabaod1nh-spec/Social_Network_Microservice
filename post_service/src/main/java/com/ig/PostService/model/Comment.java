@@ -15,15 +15,19 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @Column(name = "user_name")
     private String userName;
-
+    @Column(name = "first_name")
+    private String firstName;
+    @Column(name = "last_name")
+    private String lastName;
+    @Column(name = "avatar_url")
+    private String avatarUrl;
     private String comment;
-
     @Column(name = "create_at")
     private LocalDateTime commentAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "liked")
+    private Long liked;
+    @ManyToOne
     private Post post;
 }

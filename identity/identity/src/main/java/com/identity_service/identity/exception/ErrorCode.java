@@ -1,5 +1,6 @@
 package com.identity_service.identity.exception;
 
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
@@ -14,7 +15,13 @@ public enum ErrorCode {
     TOKEN_NOT_FOUND(1010 , "Refresh token not found in DB" , HttpStatus.BAD_REQUEST),
     TOKEN_REVOKED(1011 , "Token exists in blacklists" , HttpStatus.BAD_REQUEST),
      VERIFY_EMAIL_TOKEN_INVALID(1012 , "Email token invalid" , HttpStatus.NOT_FOUND),
-    EMAIL_NOT_VERIFIED(1013 , "Email not yet verify" , HttpStatus.NOT_FOUND)
+    EMAIL_NOT_VERIFIED(1013 , "Email not yet verify" , HttpStatus.NOT_FOUND),
+    USERNAME_INVALID(1014 , "Username too short" , HttpStatus.NOT_FOUND),
+    INVALID_PASSWORD(1015 , "Password required more than 6 characters" , HttpStatus.BAD_REQUEST),
+    USERID_NOT_FOUND(1016, "Userid not found , check again" , HttpStatus.BAD_REQUEST),
+    MUST_NOT_BLANK(1017 , "Must not left empty blank" , HttpStatus.BAD_REQUEST),
+    INVALID_KEY(1111, "Uncategorized error", HttpStatus.BAD_REQUEST),
+
 
 
 
