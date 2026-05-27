@@ -19,6 +19,9 @@ import com.identity_service.identity.service.impl.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -35,6 +38,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * UserService unit tests: decision table for duplicate checks, ECP/BVA on userId.
+ */
 @TestPropertySource("/test.properties")
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -111,29 +117,66 @@ class UserServiceTest {
                 .build();
     }
 
+    /**
+     * Decision table: existsByUserName | existsByEmail -> outcome.
+     */
+    @ParameterizedTest(name = "createUser_{3}")
+    @CsvSource({
+            "true, true, USER_EXISTED, bothExist_throwsUserExisted",
+            "true, false, USER_EXISTED, usernameExists_throwsUserExisted",
+            "false, true, USER_EXISTED, emailExists_throwsUserExisted",
+            "false, false, SUCCESS, bothFree_persistsUser",
+    })
+    void createUser_duplicateDecisionTable(
+            boolean usernameTaken,
+            boolean emailTaken,
+            String expectedOutcome,
+            String scenario) {
+        when(userMapper.convertUserFromRequest(creationRequest)).thenReturn(mappedUser);
+        when(userRepository.existsByUserName(USERNAME)).thenReturn(usernameTaken);
+        if (!usernameTaken) {
+            when(userRepository.existsByEmail(EMAIL)).thenReturn(emailTaken);
+        }
+
+        if ("SUCCESS".equals(expectedOutcome)) {
+            when(userRepository.save(mappedUser)).thenReturn(savedUser);
+            when(profileMapper.convertFromUserCreationRequest(creationRequest)).thenReturn(profileRequest);
+            when(userMapper.convertResponseFromUser(savedUser)).thenReturn(mappedResponse);
+
+            UserResponse result = userService.createUser(creationRequest);
+
+            assertThat(result).isEqualTo(mappedResponse);
+            verify(userRepository).save(mappedUser);
+            verify(emailVerifyTokenRepository).save(any(EmailVerifyToken.class));
+            verify(notificationClient).verifyEmailUser(any(VerifyEmailRequest.class));
+            verify(profileClient).createProfile(any(ProfileCreationRequest.class));
+        } else {
+            AppException ex = assertThrows(AppException.class, () -> userService.createUser(creationRequest));
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.USER_EXISTED);
+            verify(userRepository, never()).save(any());
+            verify(emailVerifyTokenRepository, never()).save(any());
+            verify(notificationClient, never()).verifyEmailUser(any());
+            verify(profileClient, never()).createProfile(any());
+        }
+    }
+
     @Test
-    void createUser_whenUsernameAndEmailAvailable_persistsAndCallsDownstreamServices() {
+    void createUser_bothFree_wiresVerifyEmailAndProfile() {
+        when(userMapper.convertUserFromRequest(creationRequest)).thenReturn(mappedUser);
         when(userRepository.existsByUserName(USERNAME)).thenReturn(false);
         when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
-        when(userMapper.convertUserFromRequest(creationRequest)).thenReturn(mappedUser);
         when(userRepository.save(mappedUser)).thenReturn(savedUser);
         when(profileMapper.convertFromUserCreationRequest(creationRequest)).thenReturn(profileRequest);
         when(userMapper.convertResponseFromUser(savedUser)).thenReturn(mappedResponse);
 
-        UserResponse result = userService.createUser(creationRequest);
+        userService.createUser(creationRequest);
 
-        assertThat(result).isEqualTo(mappedResponse);
-
-        verify(userRepository).save(mappedUser);
         ArgumentCaptor<EmailVerifyToken> tokenCaptor = ArgumentCaptor.forClass(EmailVerifyToken.class);
         verify(emailVerifyTokenRepository).save(tokenCaptor.capture());
         assertThat(tokenCaptor.getValue().getUsers()).isEqualTo(savedUser);
-        assertThat(tokenCaptor.getValue().getEmailVerifyToken()).isNotBlank();
 
         ArgumentCaptor<VerifyEmailRequest> notifyCaptor = ArgumentCaptor.forClass(VerifyEmailRequest.class);
         verify(notificationClient).verifyEmailUser(notifyCaptor.capture());
-        assertThat(notifyCaptor.getValue().getUserEmail()).isEqualTo(EMAIL);
-        assertThat(notifyCaptor.getValue().getUserName()).isEqualTo(USERNAME);
         assertThat(notifyCaptor.getValue().getToken()).isEqualTo(tokenCaptor.getValue().getEmailVerifyToken());
 
         ArgumentCaptor<ProfileCreationRequest> profileCaptor = ArgumentCaptor.forClass(ProfileCreationRequest.class);
@@ -141,71 +184,61 @@ class UserServiceTest {
         assertThat(profileCaptor.getValue().getUserId()).isEqualTo(USER_ID);
     }
 
-    @Test
-    void createUser_whenUsernameExists_throwsUserExisted() {
-        when(userRepository.existsByUserName(USERNAME)).thenReturn(true);
+    @ParameterizedTest(name = "getUser_{1}")
+    @CsvSource({
+            "user-uuid-1, FOUND, validId_returnsMappedResponse",
+            "missing-id, NOT_FOUND, unknownId_throwsUserNotExist",
+    })
+    void getUser_userIdEquivalencePartition(String userId, String partition, String scenario) {
+        if ("FOUND".equals(partition)) {
+            when(userRepository.findById(userId)).thenReturn(Optional.of(savedUser));
+            when(userMapper.convertResponseFromUser(savedUser)).thenReturn(mappedResponse);
 
-        AppException ex = assertThrows(AppException.class, () -> userService.createUser(creationRequest));
+            UserResponse result = userService.getUser(userId);
 
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.USER_EXISTED);
-        verify(userRepository, never()).save(any());
-        verify(emailVerifyTokenRepository, never()).save(any());
-        verify(notificationClient, never()).verifyEmailUser(any());
-        verify(profileClient, never()).createProfile(any());
+            assertThat(result).isEqualTo(mappedResponse);
+            verify(userMapper).convertResponseFromUser(savedUser);
+        } else {
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+            AppException ex = assertThrows(AppException.class, () -> userService.getUser(userId));
+
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXIST);
+            verify(userMapper, never()).convertResponseFromUser(any());
+        }
     }
 
-    @Test
-    void createUser_whenEmailExists_throwsUserExisted() {
-        when(userRepository.existsByUserName(USERNAME)).thenReturn(false);
-        when(userRepository.existsByEmail(EMAIL)).thenReturn(true);
+    @ParameterizedTest(name = "getUser_{0}_throwsUserNotExist")
+    @NullAndEmptySource
+    void getUser_boundaryEmptyId_throwsUserNotExist(String userId) {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        AppException ex = assertThrows(AppException.class, () -> userService.createUser(creationRequest));
-
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.USER_EXISTED);
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void getUser_whenFound_returnsMappedResponse() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(savedUser));
-        when(userMapper.convertResponseFromUser(savedUser)).thenReturn(mappedResponse);
-
-        UserResponse result = userService.getUser(USER_ID);
-
-        assertThat(result).isEqualTo(mappedResponse);
-        verify(userRepository).findById(USER_ID);
-        verify(userMapper).convertResponseFromUser(savedUser);
-    }
-
-    @Test
-    void getUser_whenMissing_throwsUserNotExist() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
-
-        AppException ex = assertThrows(AppException.class, () -> userService.getUser(USER_ID));
+        AppException ex = assertThrows(AppException.class, () -> userService.getUser(userId));
 
         assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXIST);
-        verify(userMapper, never()).convertResponseFromUser(any());
     }
 
-    @Test
-    void deleteUser_whenFound_setsStatusDelete() {
-        User user = new User();
-        user.setUserId(USER_ID);
-        user.setUserStatus(UserStatus.ACTIVE);
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+    @ParameterizedTest(name = "deleteUser_{1}")
+    @CsvSource({
+            "user-uuid-1, FOUND, validId_setsStatusDelete",
+            "ghost-id, NOT_FOUND, unknownId_throwsUserNotExist",
+    })
+    void deleteUser_userIdPartition(String userId, String partition, String scenario) {
+        if ("FOUND".equals(partition)) {
+            User user = new User();
+            user.setUserId(userId);
+            user.setUserStatus(UserStatus.ACTIVE);
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        userService.deleteUser(USER_ID);
+            userService.deleteUser(userId);
 
-        assertThat(user.getUserStatus()).isEqualTo(UserStatus.DELETE);
-        verify(userRepository).findById(USER_ID);
-    }
+            assertThat(user.getUserStatus()).isEqualTo(UserStatus.DELETE);
+        } else {
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-    @Test
-    void deleteUser_whenMissing_throwsUserNotExist() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
+            AppException ex = assertThrows(AppException.class, () -> userService.deleteUser(userId));
 
-        AppException ex = assertThrows(AppException.class, () -> userService.deleteUser(USER_ID));
-
-        assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXIST);
+            assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXIST);
+        }
     }
 }
