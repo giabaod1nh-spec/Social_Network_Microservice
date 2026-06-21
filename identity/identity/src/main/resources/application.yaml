@@ -3,9 +3,9 @@ spring:
     name: identity-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: "jdbc:postgresql://localhost:5433/social_network_identity"
+    url: "jdbc:postgresql://localhost:5432/social_network_identity"
     username: postgres
-    password: postgres
+    password: 0911600379
   jpa:
     hibernate:
       ddl-auto: update

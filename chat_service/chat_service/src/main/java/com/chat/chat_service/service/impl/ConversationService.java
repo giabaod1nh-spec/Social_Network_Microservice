@@ -57,6 +57,12 @@ public class ConversationService implements IConversationService {
         var sortedIds = userIds.stream().sorted().toList();
         String userIdHash = generateParticipantHash(sortedIds);
 
+        // Return existing conversation if one already exists between these two users
+        var existing = conservationRepository.findByParticipantHash(userIdHash);
+        if (existing.isPresent()) {
+            return toConversationResponse(existing.get());
+        }
+
         List<ParticipantInfo> participantInfos = List.of(
                 ParticipantInfo.builder()
                         .userId(userInfo.getUserId())

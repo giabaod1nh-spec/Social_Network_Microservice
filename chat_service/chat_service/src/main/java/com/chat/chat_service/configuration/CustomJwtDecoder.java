@@ -25,19 +25,20 @@ public class    CustomJwtDecoder implements JwtDecoder {
 
     @Override
     public Jwt decode(String token) throws JwtException {
-      //  if (redisTokenService.isTokenBlackListed(token)) throw new AppException(ErrorCode.TOKEN_REVOKED);
-      // No need to double verify token
-        try{
+        try {
             SignedJWT signedJWT = SignedJWT.parse(token);
 
-        return new Jwt(token ,
-                signedJWT.getJWTClaimsSet().getIssueTime().toInstant() ,
-                signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(),
-                signedJWT.getHeader().toJSONObject(),
-                signedJWT.getJWTClaimsSet().getClaims()
-                );
+            // Verify the signature using HS512 before trusting any claims
+            nimbusJwtDecoder().decode(token);
+
+            return new Jwt(token ,
+                    signedJWT.getJWTClaimsSet().getIssueTime().toInstant() ,
+                    signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(),
+                    signedJWT.getHeader().toJSONObject(),
+                    signedJWT.getJWTClaimsSet().getClaims()
+            );
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+            throw new JwtException("Invalid JWT token", e);
         }
     }
 

@@ -8,30 +8,22 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="common" />
-      </profile>
-      <profile name="Annotation profile for identity" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
-        </processorPath>
-        <module name="identity" />
+        <module name="api-gateway" />
+        <module name="notification_service" />
       </profile>
       <profile name="Annotation profile for story" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
         </processorPath>
-        <module name="notification_service" />
-        <module name="profile" />
-        <module name="PostService" />
-        <module name="api-gateway" />
         <module name="chat_service" />
         <module name="demo" />
+        <module name="identity" />
         <module name="story" />
+        <module name="profile" />
+        <module name="PostService" />
       </profile>
     </annotationProcessing>
   </component>

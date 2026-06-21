@@ -6,7 +6,7 @@ spring:
     uri: bolt://localhost:7687
     authentication:
       username: neo4j
-      password: 12345678
+      password: password123
 server:
   port: 8081
   servlet:

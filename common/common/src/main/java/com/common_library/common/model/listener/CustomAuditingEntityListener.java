@@ -22,8 +22,9 @@ public class CustomAuditingEntityListener extends AuditingEntityListener {
         BaseAuditEntity baseAuditEntity = (BaseAuditEntity) target;
 
         if(baseAuditEntity.getCreatedAt() == null){
-            super.touchForCreate(target);
+            super.touchForCreate(target);   //default algorithm
         }else{
+            //custom step override
             if (baseAuditEntity.getUpdatedAt() == null){
                 baseAuditEntity.setUpdatedAt(baseAuditEntity.getCreatedAt());
             }

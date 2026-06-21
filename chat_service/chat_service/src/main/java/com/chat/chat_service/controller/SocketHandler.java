@@ -53,6 +53,9 @@ public class SocketHandler {
 
             webSocketSession = webSocketSessionService.create(webSocketSession);
 
+            // Store token on client so @OnEvent handlers can retrieve it
+            client.set("token", token);
+
             log.info("Web socket session created with id: {}" , webSocketSession.getId());
         }else{
             log.info("Authentication failed: {}" , client.getSessionId());
@@ -68,8 +71,8 @@ public class SocketHandler {
 
     @PostConstruct
     public void startServer() {
-                server.start();
         server.addListeners(this);
+        server.start();
         log.info("Socket server started");
     }
 

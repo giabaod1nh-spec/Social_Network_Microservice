@@ -9,9 +9,8 @@ import org.springframework.stereotype.Component;
 public class ChatMapper {
 
     public ChatMessageResponse convertFromChatMessage (ChatMessage chatMessage){
-
-
         return  ChatMessageResponse.builder()
+                .id(chatMessage.getId())
                 .conversationId(chatMessage.getConversationId())
                 .message(chatMessage.getMessage())
                 .sender(chatMessage.getSender())

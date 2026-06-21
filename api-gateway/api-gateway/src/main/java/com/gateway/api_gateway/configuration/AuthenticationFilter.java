@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
-
+//CHAIN OF RESPONSBILITY PATTERN
 @Component
 @Slf4j(topic = "API_GATEWAY_AUTHEN_FILTER")
 @RequiredArgsConstructor

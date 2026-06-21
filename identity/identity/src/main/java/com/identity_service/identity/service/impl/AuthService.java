@@ -215,7 +215,7 @@ public class AuthService implements IAuthService {
         }
     }
 
-    protected SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+    public SignedJWT verifyToken(String token) throws JOSEException, ParseException {
         JWSVerifier jwsVerifier = new MACVerifier(secretKey.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);

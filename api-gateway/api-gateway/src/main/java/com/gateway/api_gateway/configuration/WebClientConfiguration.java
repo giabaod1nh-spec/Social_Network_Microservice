@@ -36,6 +36,7 @@ public class WebClientConfiguration {
 
     @Bean
     IdentityClient identityClient(WebClient webClient){
+        //HttpServiceProxy need HttpClientAdapter interface
         HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory
                 .builderFor(WebClientAdapter.create(webClient)).build();
 
